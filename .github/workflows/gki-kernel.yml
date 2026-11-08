@@ -148,16 +148,22 @@ jobs:
           repo status
           echo "[+] KernelSU setup done."
 
-      - name: Enable container namespaces (docker config)
+      - name: Enable container namespaces (docker config via POST_DEFCONFIG_CMDS)
         run: |
           set -e
-          COMMON_ROOT=$GITHUB_WORKSPACE/android-kernel/common
-          CFG=$COMMON_ROOT/arch/arm64/configs/gki_defconfig
-          for opt in CONFIG_NAMESPACES=y CONFIG_PID_NS=y CONFIG_USER_NS=y CONFIG_IPC_NS=y CONFIG_SYSVIPC=y CONFIG_POSIX_MQUEUE=y CONFIG_CGROUP_PIDS=y CONFIG_CGROUP_DEVICE=y CONFIG_CGROUP_FREEZER=y CONFIG_OVERLAY_FS=y CONFIG_VETH=y CONFIG_BRIDGE=y CONFIG_BRIDGE_NETFILTER=y CONFIG_NF_CONNTRACK=y CONFIG_NF_NAT=y CONFIG_NF_NAT_MASQUERADE=y CONFIG_NF_NAT_MASQUERADE_IPV4=y CONFIG_NETFILTER_XT_TARGET_MASQUERADE=y CONFIG_NETFILTER_XT_MATCH_ADDRTYPE=y CONFIG_NETFILTER_XT_MATCH_CONNTRACK=y CONFIG_NETFILTER_XT_MATCH_COMMENT=y CONFIG_IP_NF_IPTABLES=y CONFIG_IP_NF_FILTER=y CONFIG_IP_NF_NAT=y CONFIG_IP_NF_TARGET_MASQUERADE=y CONFIG_IP_SET=y CONFIG_IP_SET_HASH_IP=y; do
-            echo "$opt" >> "$CFG"
-          done
-          echo "[+] container config appended:"
-          tail -25 "$CFG"
+          BCFG=$GITHUB_WORKSPACE/android-kernel/common/build.config.gki.aarch64
+          cat >> "$BCFG" <<'KSEOF'
+          POST_DEFCONFIG_CMDS="${POST_DEFCONFIG_CMDS:+${POST_DEFCONFIG_CMDS} && }update_docker_config"
+          function update_docker_config() {
+            for opt in PID_NS USER_NS IPC_NS SYSVIPC POSIX_MQUEUE CGROUP_PIDS CGROUP_DEVICE CGROUP_FREEZER OVERLAY_FS VETH BRIDGE BRIDGE_NETFILTER NF_CONNTRACK NF_NAT NF_NAT_MASQUERADE NETFILTER_XT_TARGET_MASQUERADE NETFILTER_XT_MATCH_ADDRTYPE NETFILTER_XT_MATCH_CONNTRACK NETFILTER_XT_MATCH_COMMENT IP_NF_IPTABLES IP_NF_FILTER IP_NF_NAT IP_NF_TARGET_MASQUERADE IP_SET IP_SET_HASH_IP; do
+              sed -i "/^# CONFIG_${opt} is not set/d; /^CONFIG_${opt}=/d" ${OUT_DIR}/.config
+              echo "CONFIG_${opt}=y" >> ${OUT_DIR}/.config
+            done
+            make ARCH=arm64 olddefconfig O=${OUT_DIR}
+          }
+          KSEOF
+          echo "[+] docker POST_DEFCONFIG_CMDS injected:"
+          tail -20 "$BCFG"
 
       - name: Symbol magic
         run: |
