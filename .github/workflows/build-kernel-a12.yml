@@ -28,18 +28,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - variant: M_PIDNS
+          - variant: MIN2
             os_patch_level: 2025-05
-            opts: "CONFIG_PID_NS=y"
-          - variant: M_IPCNS
-            os_patch_level: 2025-05
-            opts: "CONFIG_IPC_NS=y"
-          - variant: M_SYSV
-            os_patch_level: 2025-05
-            opts: "CONFIG_SYSVIPC=y"
-          - variant: M_MQUEUE
-            os_patch_level: 2025-05
-            opts: "CONFIG_POSIX_MQUEUE=y"
+            opts: "CONFIG_PID_NS=y CONFIG_IPC_NS=y"
         # H1 = namespace+cgroup+存储网络基础 / H2 = netfilter 细节
         
     uses: ./.github/workflows/gki-kernel.yml
