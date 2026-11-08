@@ -163,6 +163,7 @@ jobs:
           POST_DEFCONFIG_CMDS="${POST_DEFCONFIG_CMDS:+${POST_DEFCONFIG_CMDS} && }update_docker_config"
           function update_docker_config() {
             for opt in ${{ inputs.opts }}; do
+              opt="${opt#CONFIG_}"; opt="${opt%=y}"
               sed -i "/^# CONFIG_${opt} is not set/d; /^CONFIG_${opt}=/d" ${OUT_DIR}/.config
               echo "CONFIG_${opt}=y" >> ${OUT_DIR}/.config
             done
