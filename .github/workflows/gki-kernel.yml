@@ -148,14 +148,14 @@ jobs:
           repo status
           echo "[+] KernelSU setup done."
 
-      - name: Enable container namespaces (docker config via POST_DEFCONFIG_CMDS)
+      - name: Enable container namespaces (CONTROL build (no config changes))
         run: |
           set -e
           BCFG=$GITHUB_WORKSPACE/android-kernel/common/build.config.gki.aarch64
           cat >> "$BCFG" <<'KSEOF'
           POST_DEFCONFIG_CMDS="${POST_DEFCONFIG_CMDS:+${POST_DEFCONFIG_CMDS} && }update_docker_config"
           function update_docker_config() {
-            for opt in PID_NS USER_NS IPC_NS SYSVIPC POSIX_MQUEUE CGROUP_PIDS CGROUP_DEVICE CGROUP_FREEZER OVERLAY_FS VETH BRIDGE BRIDGE_NETFILTER NF_CONNTRACK NF_NAT NF_NAT_MASQUERADE NETFILTER_XT_TARGET_MASQUERADE NETFILTER_XT_MATCH_ADDRTYPE NETFILTER_XT_MATCH_CONNTRACK NETFILTER_XT_MATCH_COMMENT IP_NF_IPTABLES IP_NF_FILTER IP_NF_NAT IP_NF_TARGET_MASQUERADE IP_SET IP_SET_HASH_IP; do
+            for opt in ; do  # CONTROL BUILD: no config changes (bisection control)
               sed -i "/^# CONFIG_${opt} is not set/d; /^CONFIG_${opt}=/d" ${OUT_DIR}/.config
               echo "CONFIG_${opt}=y" >> ${OUT_DIR}/.config
             done
