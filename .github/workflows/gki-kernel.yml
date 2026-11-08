@@ -53,6 +53,12 @@ on:
         required: false
         type: boolean
         default: false
+      opts:
+        required: false
+        type: string
+        default: ''
+        description: >
+          Space separated extra CONFIG options set to y
     secrets:
       BOOT_SIGN_KEY:
         required: false
@@ -119,6 +125,7 @@ jobs:
         env:
           PATCH_PATH: ${{ inputs.patch_path }}
           IS_DEBUG_KERNEL: ${{ inputs.debug }}
+          OPTS: ${{ inputs.opts }}
         run: |
           cd $GITHUB_WORKSPACE/android-kernel
           echo "[+] KernelSU setup"
@@ -155,7 +162,7 @@ jobs:
           cat >> "$BCFG" <<'KSEOF'
           POST_DEFCONFIG_CMDS="${POST_DEFCONFIG_CMDS:+${POST_DEFCONFIG_CMDS} && }update_docker_config"
           function update_docker_config() {
-            for opt in ; do  # CONTROL BUILD: no config changes (bisection control)
+            for opt in ${{ inputs.opts }}; do
               sed -i "/^# CONFIG_${opt} is not set/d; /^CONFIG_${opt}=/d" ${OUT_DIR}/.config
               echo "CONFIG_${opt}=y" >> ${OUT_DIR}/.config
             done
