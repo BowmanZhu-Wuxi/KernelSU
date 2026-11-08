@@ -159,7 +159,7 @@ jobs:
               sed -i "/^# CONFIG_${opt} is not set/d; /^CONFIG_${opt}=/d" ${OUT_DIR}/.config
               echo "CONFIG_${opt}=y" >> ${OUT_DIR}/.config
             done
-            cd ${KERNEL_DIR} && make ARCH=arm64 LLVM=1 LLVM_IAS=1 DEPMOD=depmod DTC=dtc olddefconfig O=${OUT_DIR}
+            ( cd ${KERNEL_DIR} && make ARCH=arm64 LLVM=1 LLVM_IAS=1 DEPMOD=depmod DTC=dtc olddefconfig O=${OUT_DIR} )
           }
           KSEOF
           echo "[+] docker POST_DEFCONFIG_CMDS injected:"
