@@ -28,12 +28,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - variant: H2a1
+          - variant: MIN2V2
             os_patch_level: 2025-05
-            opts: "CONFIG_PID_NS=y CONFIG_IPC_NS=y CONFIG_SYSVIPC=y CONFIG_POSIX_MQUEUE=y CONFIG_CGROUP_PIDS=y CONFIG_CGROUP_DEVICE=y CONFIG_CGROUP_FREEZER=y CONFIG_OVERLAY_FS=y CONFIG_VETH=y CONFIG_BRIDGE=y CONFIG_BRIDGE_NETFILTER=y CONFIG_NF_CONNTRACK=y CONFIG_NF_NAT=y CONFIG_NF_NAT_MASQUERADE=y"
-          - variant: H2a2
-            os_patch_level: 2025-05
-            opts: "CONFIG_PID_NS=y CONFIG_IPC_NS=y CONFIG_SYSVIPC=y CONFIG_POSIX_MQUEUE=y CONFIG_CGROUP_PIDS=y CONFIG_CGROUP_DEVICE=y CONFIG_CGROUP_FREEZER=y CONFIG_OVERLAY_FS=y CONFIG_VETH=y CONFIG_BRIDGE=y CONFIG_NF_NAT_MASQUERADE_IPV4=y CONFIG_NETFILTER_XT_TARGET_MASQUERADE=y CONFIG_NETFILTER_XT_MATCH_ADDRTYPE=y"
+            opts: "CONFIG_PID_NS=y CONFIG_IPC_NS=y"
         # H1 = namespace+cgroup+存储网络基础 / H2 = netfilter 细节
         
     uses: ./.github/workflows/gki-kernel.yml
